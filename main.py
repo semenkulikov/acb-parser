@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
     options = webdriver.ChromeOptions()
     options.add_argument("--disable-infobars")
-    options.add_argument("--headless=new")
+    # options.add_argument("--headless=new")
     options.add_argument("--incognito")
     options.add_argument("start-maximized")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
@@ -97,7 +97,8 @@ if __name__ == '__main__':
 
             # Данные из карточки лота на сайте www.torgiasv.ru
             print("Приступаю к парсингу данных на www.torgiasv.ru")
-
+            sleep(3)
+            div_tag_number = 2  # В xpath путях номер div элемента меняется временами
             try:
                 lot_name = WebDriverWait(browser, 1).until(
                     EC.presence_of_element_located((By.XPATH,
@@ -106,12 +107,22 @@ if __name__ == '__main__':
                                                     'div/div[2]'
                                                     '/div/div[1]/div/app-block-detail-title/div/div[3]'))).text
             except Exception:
-                lot_name = WebDriverWait(browser, 1).until(
-                    EC.presence_of_element_located((By.XPATH,
-                                                    '/html/body/app-root/div/main/app-page-sales-item/app-catalog'
-                                                    '-detail/'
-                                                    'div/div[2]/'
-                                                    'div/div[1]/div/app-block-detail-title/div/div[1]/div[1]/h1'))).text
+                try:
+                    lot_name = WebDriverWait(browser, 1).until(
+                        EC.presence_of_element_located((By.XPATH,
+                                                        '/html/body/app-root/div/main/app-page-sales-item/app-catalog'
+                                                        '-detail/'
+                                                        f'div/div[{div_tag_number}]/'
+                                                        'div/div[1]/div/app-block-detail-title/div/div[1]/'
+                                                        'div[1]/h1'))).text
+                except Exception:
+                    div_tag_number += 1
+                    lot_name = WebDriverWait(browser, 1).until(
+                        EC.presence_of_element_located((By.XPATH,
+                                                        '/html/body/app-root/div/main/app-page-sales-item/app-catalog'
+                                                        '-detail/'
+                                                        f'div/div[{div_tag_number}]/div/div[1]/div/'
+                                                        f'app-block-detail-title/div/div[3]'))).text
 
             try:
                 lot_number = WebDriverWait(browser, 1).until(
@@ -123,8 +134,9 @@ if __name__ == '__main__':
                 lot_number = WebDriverWait(browser, 1).until(
                     EC.presence_of_element_located(
                         (By.XPATH,
-                         '/html/body/app-root/div/main/app-page-sales-item/app-catalog-detail/div/div[2]/div/div[1]/'
-                         'div/app-block-detail-title/div/div[2]/a/span[2]'))).text
+                         f'/html/body/app-root/div/main/app-page-sales-item/app-catalog-detail/'
+                         f'div/div[{div_tag_number}]/div/div[1]/div/app-block-detail-title/'
+                         f'div/div[2]/a/span[2]'))).text
 
             lot_number = int(lot_number)
 
@@ -140,7 +152,7 @@ if __name__ == '__main__':
             type_of_credit = WebDriverWait(browser, 1).until(
                 EC.presence_of_element_located((By.XPATH,
                                                 '/html/body/app-root/div/main/app-page-sales-item/'
-                                                'app-catalog-detail/div/div[2]'
+                                                f'app-catalog-detail/div/div[{div_tag_number}]'
                                                 '/div/div[1]/div/div[3]/app-block-feature-group/div/div[2]/div/'
                                                 'app-block-feature-list/div[1]/div[2]/app-block-feature-value/'
                                                 'span'))).text
@@ -153,14 +165,14 @@ if __name__ == '__main__':
             region = WebDriverWait(browser, 1).until(
                 EC.presence_of_element_located((By.XPATH,
                                                 '/html/body/app-root/div/main/app-page-sales-item/'
-                                                'app-catalog-detail/div/div[2]/div/div[1]/div/div[4]/'
+                                                f'app-catalog-detail/div/div[{div_tag_number}]/div/div[1]/div/div[4]/'
                                                 'app-block-feature-group/div[1]/div[2]/div/'
                                                 'app-block-feature-list/div/div[2]/app-block-feature-value/span'))).text
 
             agency = WebDriverWait(browser, 1).until(
                 EC.presence_of_element_located((By.XPATH,
                                                 '/html/body/app-root/div/main/app-page-sales-item/'
-                                                'app-catalog-detail/div/div[2]/div/div[1]/div/div[4]/'
+                                                f'app-catalog-detail/div/div[{div_tag_number}]/div/div[1]/div/div[4]/'
                                                 'app-block-feature-group/div[2]/div[2]/div/app-block-feature-list/'
                                                 'div[1]/'
                                                 'div[2]/app-block-feature-value/a'))).text
@@ -168,16 +180,16 @@ if __name__ == '__main__':
             data_published = WebDriverWait(browser, 1).until(
                 EC.presence_of_element_located((By.XPATH,
                                                 '/html/body/app-root/div/main/app-page-sales-item/app-catalog-detail/'
-                                                'div/div[2]/div/div[1]/div/div[4]/app-block-feature-group/'
-                                                'div[2]/div[2]/'
+                                                f'div/div[{div_tag_number}]/div/div[1]/'
+                                                f'div/div[4]/app-block-feature-group/div[2]/div[2]/'
                                                 'div/app-block-feature-list/div[2]/div[2]/'
                                                 'app-block-feature-value/span'))).text
 
             public_link = WebDriverWait(browser, 1).until(
                 EC.presence_of_element_located((By.XPATH,
                                                 '/html/body/app-root/div/main/app-page-sales-item/app-catalog-detail/'
-                                                'div/div[2]/div/div[1]/div/div[4]/app-block-feature-group/'
-                                                'div[2]/div[2]/'
+                                                f'div/div[{div_tag_number}]/div/'
+                                                f'div[1]/div/div[4]/app-block-feature-group/div[2]/div[2]/'
                                                 'div/app-block-feature-list/div[3]/div[2]/'
                                                 'app-block-feature-value/a'))).get_attribute('href')
             try:
@@ -186,28 +198,30 @@ if __name__ == '__main__':
                         EC.presence_of_element_located((By.XPATH,
                                                         '/html/body/app-root/div/main/app-page-sales-item/'
                                                         'app-catalog-detail/div/'
-                                                        'div[2]'
+                                                        f'div[{div_tag_number}]'
                                                         '/div/div[2]/div[1]/app-block-detail-card/div/div[2]/div[2]/'
                                                         'app-feature-item[4]/div/div[2]/div/a'))).text
                     bidding = WebDriverWait(browser, 1).until(
                         EC.presence_of_element_located((By.XPATH,
                                                         '/html/body/app-root/div/main/app-page-sales-item/'
                                                         'app-catalog-detail/div/'
-                                                        'div[2]/div/div[2]/div[1]/app-block-detail-card/div/div[2]/div[2]/'
+                                                        f'div[{div_tag_number}]/div/div[2]/'
+                                                        f'div[1]/app-block-detail-card/div/div[2]/div[2]/'
                                                         'app-feature-item[5]/div/div[2]/div/a')))
                 except Exception:
                     platform = WebDriverWait(browser, 1).until(
                         EC.presence_of_element_located((By.XPATH,
                                                         '/html/body/app-root/div/main/app-page-sales-item/'
                                                         'app-catalog-detail/div/'
-                                                        'div[2]'
+                                                        f'div[{div_tag_number}]'
                                                         '/div/div[2]/div[1]/app-block-detail-card/div/div[2]/div[2]/'
                                                         'app-feature-item[5]/div/div[2]/div/a'))).text
                     bidding = WebDriverWait(browser, 1).until(
                         EC.presence_of_element_located((By.XPATH,
                                                         '/html/body/app-root/div/main/app-page-sales-item/'
                                                         'app-catalog-detail/div/'
-                                                        'div[2]/div/div[2]/div[1]/app-block-detail-card/div/div[2]/div[2]/'
+                                                        f'div[{div_tag_number}]/div/div[2]/'
+                                                        f'div[1]/app-block-detail-card/div/div[2]/div[2]/'
                                                         'app-feature-item[6]/div/div[2]/div/a')))
 
                 bidding_number = int(bidding.text)
@@ -217,7 +231,8 @@ if __name__ == '__main__':
                     EC.presence_of_element_located((By.XPATH,
                                                     '/html/body/app-root/div/main/app-page-sales-item/'
                                                     'app-catalog-detail/div/'
-                                                    'div[2]/div/div[2]/div[1]/app-block-detail-card/div/div[2]/div[2]/'
+                                                    f'div[{div_tag_number}]/div/div[2]/'
+                                                    f'div[1]/app-block-detail-card/div/div[2]/div[2]/'
                                                     'app-feature-item[5]/div/div[2]/div/a'))).text
                 bidding_number = "Не найден"
                 platform_link = ""
@@ -227,12 +242,13 @@ if __name__ == '__main__':
 
             bidding_list = list()
             click_button(
-                "/html/body/app-root/div/main/app-page-sales-item/app-catalog-detail/div/div[2]/div/div[2]/div[1]/"
+                f"/html/body/app-root/div/main/app-page-sales-item/"
+                f"app-catalog-detail/div/div[{div_tag_number}]/div/div[2]/div[1]/"
                 "app-block-detail-card/div/div[2]/div[2]/app-feature-item[2]/div[1]/div/a")
             sleep(1)
 
             bid_div = browser.find_elements(By.XPATH, "/html/body/app-root/div/main/app-page-sales-item/"
-                                                      "app-catalog-detail/div/div[2]/div/div[2]/div[1]/"
+                                                      f"app-catalog-detail/div/div[{div_tag_number}]/div/div[2]/div[1]/"
                                                       "app-block-detail-card/div/div[2]/div[2]/app-feature-item[2]/"
                                                       "div[2]/div[2]/div/div")
             for div in bid_div:
@@ -249,7 +265,7 @@ if __name__ == '__main__':
             for i in range(1, 100):
                 try:
                     click_button('/html/body/app-root/div/main/app-page-sales-item/app-catalog-detail/div/'
-                                 f'div[2]/div/div[1]/div/div[2]/div[{i}]/div[1]/button')
+                                 f'div[{div_tag_number}]/div/div[1]/div/div[2]/div[{i}]/div[1]/button')
 
                 except Exception:
                     break
@@ -259,40 +275,40 @@ if __name__ == '__main__':
                     EC.presence_of_element_located((By.XPATH,
                                                     '/html/body/app-root/div/main/app-page-sales-item/app-catalog'
                                                     '-detail/div/'
-                                                    'div[2]/div/div[1]/div/div[3]/app-block-feature-group/div/div['
-                                                    '2]/div/'
+                                                    f'div[{div_tag_number}]/div/div[1]/'
+                                                    f'div/div[3]/app-block-feature-group/div/div[2]/div/'
                                                     'app-block-feature-list/div[7]/div[2]/app-block-feature-value/'
                                                     'span'))).text
                 loan_type = WebDriverWait(browser, 1).until(
                     EC.presence_of_element_located((By.XPATH,
                                                     '/html/body/app-root/div/main/app-page-sales-item/'
                                                     'app-catalog-detail/div/'
-                                                    'div[2]/div/div[1]/div/div[3]/app-block-feature-group/'
-                                                    'div/div[2]/div/'
+                                                    f'div[{div_tag_number}]/div/div[1]/div/'
+                                                    f'div[3]/app-block-feature-group/div/div[2]/div/'
                                                     'app-block-feature-list/div[1]/div[2]/'
                                                     'app-block-feature-value/span'))).text
                 treaty_date = WebDriverWait(browser, 1).until(
                     EC.presence_of_element_located((By.XPATH,
                                                     '/html/body/app-root/div/main/app-page-sales-item/'
                                                     'app-catalog-detail/div/'
-                                                    'div[2]/div/div[1]/div/div[3]/app-block-feature-group/'
-                                                    'div/div[2]/div/'
+                                                    f'div[{div_tag_number}]/div/div[1]/div/div[3]/'
+                                                    f'app-block-feature-group/div/div[2]/div/'
                                                     'app-block-feature-list/div[2]/div[2]/'
                                                     'app-block-feature-value/span'))).text
                 interest_rate = WebDriverWait(browser, 1).until(
                     EC.presence_of_element_located((By.XPATH,
                                                     '/html/body/app-root/div/main/app-page-sales-item/'
                                                     'app-catalog-detail/div/'
-                                                    'div[2]/div/div[1]/div/div[3]/app-block-feature-group/'
-                                                    'div/div[2]/div/'
+                                                    f'div[{div_tag_number}]/div/div[1]/div/div[3]/'
+                                                    f'app-block-feature-group/div/div[2]/div/'
                                                     'app-block-feature-list/div[3]/div[2]/'
                                                     'app-block-feature-value/span'))).text
                 interest_rate = float(interest_rate.replace(',', '.'))
                 is_maturity_date = WebDriverWait(browser, 1).until(
                     EC.presence_of_element_located((By.XPATH,
                                                     '/html/body/app-root/div/main/app-page-sales-item/'
-                                                    'app-catalog-detail/div/div[2]/div/div[1]/div/div[3]/'
-                                                    'app-block-feature-group/div/div[2]/div/'
+                                                    f'app-catalog-detail/div/div[{div_tag_number}]/'
+                                                    f'div/div[1]/div/div[3]/app-block-feature-group/div/div[2]/div/'
                                                     'app-block-feature-list/div[4]/div[1]/span'))).text
                 count_elem = 4
                 if is_maturity_date == "Дата погашения":
@@ -301,31 +317,31 @@ if __name__ == '__main__':
                     EC.presence_of_element_located((By.XPATH,
                                                     '/html/body/app-root/div/main/app-page-sales-item/'
                                                     'app-catalog-detail/div/'
-                                                    'div[2]/div/div[1]/div/div[3]/app-block-feature-group/'
-                                                    'div/div[2]/div/'
+                                                    f'div[{div_tag_number}]/div/div[1]/div/'
+                                                    f'div[3]/app-block-feature-group/div/div[2]/div/'
                                                     f'app-block-feature-list/div[{count_elem}]/div[2]/'
                                                     'app-block-feature-value/span'))).text
                 is_estate = WebDriverWait(browser, 1).until(
                     EC.presence_of_element_located((By.XPATH,
                                                     '/html/body/app-root/div/main/app-page-sales-item/'
                                                     'app-catalog-detail/div/'
-                                                    'div[2]/div/div[1]/div/div[3]/app-block-feature-group/'
-                                                    'div/div[2]/div/'
+                                                    f'div[{div_tag_number}]/div/div[1]/'
+                                                    f'div/div[3]/app-block-feature-group/div/div[2]/div/'
                                                     f'app-block-feature-list/div[{count_elem + 1}]/div[2]/'
                                                     'app-block-feature-value/span'))).text
                 date_balance = WebDriverWait(browser, 1).until(
                     EC.presence_of_element_located((By.XPATH,
                                                     '/html/body/app-root/div/main/app-page-sales-item/'
                                                     'app-catalog-detail/div/'
-                                                    'div[2]/div/div[1]/div/div[3]/app-block-feature-group/'
-                                                    'div/div[2]/div/'
+                                                    f'div[{div_tag_number}]/div/div[1]/'
+                                                    f'div/div[3]/app-block-feature-group/div/div[2]/div/'
                                                     f'app-block-feature-list/div[{count_elem + 4}]/div[2]/'
                                                     'app-block-feature-value/span'))).text
                 debt_amount = WebDriverWait(browser, 1).until(
                     EC.presence_of_element_located((By.XPATH,
                                                     '/html/body/app-root/div/main/app-page-sales-item/'
                                                     'app-catalog-detail/div/'
-                                                    'div[2]/div/div[1]/div/div[3]/'
+                                                    f'div[{div_tag_number}]/div/div[1]/div/div[3]/'
                                                     'app-block-feature-group/div/div[2]/div/'
                                                     f'app-block-feature-list/div[{count_elem + 5}]/div[2]/'
                                                     'app-block-feature-value/span'))).text
@@ -335,8 +351,8 @@ if __name__ == '__main__':
                         EC.presence_of_element_located((By.XPATH,
                                                         '/html/body/app-root/div/main/app-page-sales-item/'
                                                         'app-catalog-detail/div/'
-                                                        'div[2]/div/div[1]/div/div[3]/app-block-feature-group/'
-                                                        'div/div[2]/div/'
+                                                        f'div[{div_tag_number}]/div/div[1]/'
+                                                        f'div/div[3]/app-block-feature-group/div/div[2]/div/'
                                                         f'app-block-feature-list/div[{count_elem + 6}]/div[2]/'
                                                         'app-block-feature-value/span'))).text)
                 except Exception:
@@ -346,16 +362,16 @@ if __name__ == '__main__':
                     EC.presence_of_element_located((By.XPATH,
                                                     '/html/body/app-root/div/main/app-page-sales-item/'
                                                     'app-catalog-detail/div/'
-                                                    'div[2]/div/div[1]/div/div[3]/app-block-feature-group/'
-                                                    'div/div[2]/div/'
+                                                    f'div[{div_tag_number}]/div/div[1]/div/div[3]/'
+                                                    f'app-block-feature-group/div/div[2]/div/'
                                                     f'app-block-feature-list/div[{count_elem + 7}]/div[2]/'
                                                     'app-block-feature-value/span'))).text
                 maturity_date = WebDriverWait(browser, 1).until(
                     EC.presence_of_element_located((By.XPATH,
                                                     '/html/body/app-root/div/main/app-page-sales-item/'
                                                     'app-catalog-detail/div/'
-                                                    'div[2]/div/div[1]/div/div[3]/app-block-feature-group/'
-                                                    'div/div[2]/div/'
+                                                    f'div[{div_tag_number}]/div/'
+                                                    f'div[1]/div/div[3]/app-block-feature-group/div/div[2]/div/'
                                                     f'app-block-feature-list/div[{count_elem + 8}]/div[2]/'
                                                     'app-block-feature-value/span'))).text
                 real_estate_list = list()
@@ -365,7 +381,7 @@ if __name__ == '__main__':
                         dict_of_char = dict()
                         try:
                             click_button('/html/body/app-root/div/main/app-page-sales-item/app-catalog-detail/'
-                                         'div/div[2]/div/'
+                                         f'div/div[{div_tag_number}]/div/'
                                          'div[1]/div/div[3]/app-block-feature-group/div/div[2]/div/div/div[2]/'
                                          f'app-block-collaterals/div/div/div[{j}]/a')
                             sleep(2)
