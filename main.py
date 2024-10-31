@@ -1,4 +1,6 @@
 import os
+import logging
+from logging.handlers import RotatingFileHandler
 
 import pandas as pd
 from time import sleep
@@ -17,6 +19,22 @@ KEYS_LIST = ("Тип", "Площадь", "Количество комнат", "�
              "Разрешенное использование", "Кадастровый (условный) номер", "Адрес",
              "Год постройки", "Коммуникации и их характеристики",
              "Ограничения и обременения")
+
+log_formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(funcName)s - %(message)s')
+my_handler = RotatingFileHandler("parser.log", mode='a', maxBytes=2 * 1024 * 1024,
+                                 backupCount=1, encoding="utf8", delay=0)
+my_handler.setFormatter(log_formatter)
+my_handler.setLevel(logging.INFO)
+
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(log_formatter)
+stream_handler.setLevel(logging.DEBUG)
+
+
+app_log = logging.getLogger(__name__)
+app_log.setLevel(logging.DEBUG)
+app_log.addHandler(my_handler)
+app_log.addHandler(stream_handler)
 
 
 def click_button(xpath: str, timeout=3) -> None:
@@ -41,7 +59,7 @@ def set_viewport_size(driver, width, height):
 
 
 def random_mouse_movements(driver):
-    print("Передвигаю курсор на рандомные точки...")
+    app_log.debug("Передвигаю курсор на рандомные точки...")
     for _ in range(30):
         try:
             x = random.randint(1 * _, 10 * _)
@@ -59,11 +77,11 @@ if __name__ == '__main__':
         URLS = list()
         for line in file.readlines():
             URLS.append(line.strip())
-    print("Данные из data.txt успешно загружены!")
+    app_log.info("Данные из data.txt успешно загружены!")
 
     options = webdriver.ChromeOptions()
     options.add_argument("--disable-infobars")
-    # options.add_argument("--headless=new")
+    options.add_argument("--headless=new")
     options.add_argument("--incognito")
     options.add_argument("start-maximized")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
@@ -78,11 +96,11 @@ if __name__ == '__main__':
                                options=options)  # Создание объекта browser
     for url_page in URLS:
         try:
-            print(f"Беру в обработку {url_page}...")
+            app_log.debug(f"Беру в обработку {url_page}...")
             num_page = url_page.split('/')[-1]
-            print(f"Номер текущего лота: {num_page}")
+            app_log.info(f"Номер текущего лота: {num_page}")
 
-            print("Начинаю парсинг сайта...")
+            app_log.info("Начинаю парсинг сайта...")
 
             # set_viewport_size(browser, 1400, 800)
             try:
@@ -96,7 +114,7 @@ if __name__ == '__main__':
                 pass  # Нет кнопки принять куки
 
             # Данные из карточки лота на сайте www.torgiasv.ru
-            print("Приступаю к парсингу данных на www.torgiasv.ru")
+            app_log.info("Приступаю к парсингу данных на www.torgiasv.ru")
             sleep(3)
             div_tag_number = 2  # В xpath путях номер div элемента меняется временами
             try:
@@ -238,7 +256,7 @@ if __name__ == '__main__':
                 platform_link = ""
             # Торги
 
-            print("Парсинг торгов...")
+            app_log.info("Парсинг торгов...")
 
             bidding_list = list()
             click_button(
@@ -259,7 +277,7 @@ if __name__ == '__main__':
 
             # Договор
 
-            print("Успешно! Парсинг договоров...")
+            app_log.info("Успешно! Парсинг договоров...")
             treaty_list = list()
 
             for i in range(1, 100):
@@ -269,7 +287,7 @@ if __name__ == '__main__':
 
                 except Exception:
                     break
-                print(f"Договор {i}...")
+                app_log.debug(f"Договор {i}...")
                 sleep(2)
                 treaty_number = WebDriverWait(browser, 1).until(
                     EC.presence_of_element_located((By.XPATH,
@@ -420,7 +438,7 @@ if __name__ == '__main__':
                                     browser.execute_script(f"window.scrollTo(0, 1000)")
                                     break
                         except Exception as e:
-                            print(f"Найдено обеспечений: {j - 1}")
+                            app_log.info(f"Найдено обеспечений: {j - 1}")
                             break
                         real_estate_list.append(dict_of_char)
 
@@ -428,10 +446,10 @@ if __name__ == '__main__':
                                     date_balance, debt_amount, days_overdue, is_court_rulings, maturity_date,
                                     real_estate_list])
             if platform_link and platform != "АО «АГЗРТ»":
-                print(f"Успешно! Начинаю парсить на catalog.lot-online.ru ({platform_link})")
+                app_log.info(f"Успешно! Начинаю парсить на catalog.lot-online.ru ({platform_link})")
                 # Данные из карточки лота на сайте catalog.lot-online.ru
                 if "catalog.lot-online.ru" not in platform_link:
-                    print(f"Внимание! ссылка {platform_link} не является catalog.lot-online.ru!")
+                    app_log.error(f"Внимание! ссылка {platform_link} не является catalog.lot-online.ru!")
                     maturity_date, address = "", ""
                 else:
                     browser.get(platform_link)
@@ -474,12 +492,12 @@ if __name__ == '__main__':
                                                         'div[1]/div/div[2]/'
                                                         'div[1]/div[2]/form[1]/div[8]/dl/div[6]/dd'))).text
             else:
-                print("Не найдена ссылка на catalog.lot-online.ru!")
+                app_log.warning("Не найдена ссылка на catalog.lot-online.ru!")
                 maturity_date, address = "Не найдено", "Не найдено"
 
             # browser.close()
 
-            print(f"Формирую excel файл {num_page}.xlsx ...")
+            app_log.info(f"Формирую excel файл {num_page}.xlsx ...")
             writer = pd.ExcelWriter(f'{num_page}.xlsx', engine='xlsxwriter')
             workbook = writer.book
             worksheet = workbook.add_worksheet(num_page)
@@ -570,11 +588,11 @@ if __name__ == '__main__':
             worksheet.set_column("D:H", 25)
             worksheet.set_column(3, glob_index + 1, 25)
             writer.close()
-            print("Парсинг успешно завершен!")
+            app_log.info("Парсинг успешно завершен!")
         except Exception as e:
-            print("Неизвестная ошибка!\n", e)
-    print("Закрываю процессы...")
+            app_log.critical("Неизвестная ошибка!\n", e)
+    app_log.info("Закрываю процессы...")
     browser.close()
     os.system("taskkill /f /IM chrome.exe >nul 2>&1")
     os.system("taskkill /f /IM chromedriver.exe >nul 2>&1")
-    print("Закончил обработку всех ссылок!")
+    app_log.info("Закончил обработку всех ссылок!")
