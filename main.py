@@ -217,9 +217,8 @@ if __name__ == '__main__':
                     EC.presence_of_element_located((By.XPATH,
                                                     '/html/body/app-root/div/main/app-page-sales-item/'
                                                     'app-catalog-detail/div/'
-                                                    'div[2]'
-                                                    '/div/div[2]/div[1]/app-block-detail-card/div/div[2]/div[2]/'
-                                                    'app-feature-item[4]/div/div[2]/div/a'))).text
+                                                    'div[2]/div/div[2]/div[1]/app-block-detail-card/div/div[2]/div[2]/'
+                                                    'app-feature-item[5]/div/div[2]/div/a'))).text
                 bidding_number = "Не найден"
                 platform_link = ""
             # Торги
@@ -331,14 +330,18 @@ if __name__ == '__main__':
                                                     f'app-block-feature-list/div[{count_elem + 5}]/div[2]/'
                                                     'app-block-feature-value/span'))).text
                 debt_amount = float(debt_amount.replace(',', '.'))
-                days_overdue = int(WebDriverWait(browser, 1).until(
-                    EC.presence_of_element_located((By.XPATH,
-                                                    '/html/body/app-root/div/main/app-page-sales-item/'
-                                                    'app-catalog-detail/div/'
-                                                    'div[2]/div/div[1]/div/div[3]/app-block-feature-group/'
-                                                    'div/div[2]/div/'
-                                                    f'app-block-feature-list/div[{count_elem + 6}]/div[2]/'
-                                                    'app-block-feature-value/span'))).text)
+                try:
+                    days_overdue = int(WebDriverWait(browser, 1).until(
+                        EC.presence_of_element_located((By.XPATH,
+                                                        '/html/body/app-root/div/main/app-page-sales-item/'
+                                                        'app-catalog-detail/div/'
+                                                        'div[2]/div/div[1]/div/div[3]/app-block-feature-group/'
+                                                        'div/div[2]/div/'
+                                                        f'app-block-feature-list/div[{count_elem + 6}]/div[2]/'
+                                                        'app-block-feature-value/span'))).text)
+                except Exception:
+                    days_overdue = "НЕ НАЙДЕНО"
+                    count_elem -= 1
                 is_court_rulings = WebDriverWait(browser, 1).until(
                     EC.presence_of_element_located((By.XPATH,
                                                     '/html/body/app-root/div/main/app-page-sales-item/'
@@ -411,40 +414,49 @@ if __name__ == '__main__':
             if platform_link and platform != "АО «АГЗРТ»":
                 print(f"Успешно! Начинаю парсить на catalog.lot-online.ru ({platform_link})")
                 # Данные из карточки лота на сайте catalog.lot-online.ru
-
-                browser.get(platform_link)
-                try:
-                    link_to_lot = WebDriverWait(browser, 1).until(
-                        EC.presence_of_element_located((By.XPATH,
-                                                        '/html/body/div[1]/div[4]/div[4]/div/div[2]/div/div[2]/div[2]/div/'
-                                                        'div/div[3]/div/div[2]/div[1]/div/form/div[1]/div[1]/div/div[1]/'
-                                                        'div/div[1]/div/a'))).get_attribute("href")
-                except Exception:
+                if "catalog.lot-online.ru" not in platform_link:
+                    print(f"Внимание! ссылка {platform_link} не является catalog.lot-online.ru!")
+                    maturity_date, address = "", ""
+                else:
+                    browser.get(platform_link)
                     try:
                         link_to_lot = WebDriverWait(browser, 1).until(
                             EC.presence_of_element_located((By.XPATH,
-                                                            '/html/body/div[1]/div[4]/div[4]/div/div[2]/div/div[2]/div[2]/'
-                                                            'div/div/div[3]/div/div[2]/div[1]/div/form/div[2]/div[1]/'
-                                                            'bdi/a'))).get_attribute("href")
+                                                            '/html/body/div[1]/div[4]/div[4]/div/div[2]/div/div[2]/'
+                                                            'div[2]/div/div/div[3]/div/div[2]/div[1]/div/form/'
+                                                            'div[1]/div[1]/div/div[1]/'
+                                                            'div/div[1]/div/a'))).get_attribute("href")
                     except Exception:
-                        link_to_lot = WebDriverWait(browser, 1).until(
+                        try:
+                            link_to_lot = WebDriverWait(browser, 1).until(
+                                EC.presence_of_element_located((By.XPATH,
+                                                                '/html/body/div[1]/div[4]/div[4]/div/div[2]/div/div[2]/'
+                                                                'div[2]/div/div/div[3]/div/div[2]/div[1]/div/form/'
+                                                                'div[2]/div[1]/'
+                                                                'bdi/a'))).get_attribute("href")
+                        except Exception:
+                            link_to_lot = WebDriverWait(browser, 1).until(
+                                EC.presence_of_element_located((By.XPATH,
+                                                                '/html/body/div[1]/div[4]/div[4]/div/div[2]/div/'
+                                                                'div[2]/div[2]/div/div/div[3]/div/div[3]/div[1]/'
+                                                                'div/form/div[2]/div[1]/'
+                                                                'bdi/a'))).get_attribute("href")
+                    browser.get(link_to_lot)
+                    try:
+                        click_button('//*[@id="ui-id-1"]')
+                    except Exception:
+                        pass
+                    try:
+                        maturity_date = WebDriverWait(browser, 1).until(
                             EC.presence_of_element_located((By.XPATH,
-                                                            '/html/body/div[1]/div[4]/div[4]/div/div[2]/div/div[2]/div[2]/'
-                                                            'div/div/div[3]/div/div[3]/div[1]/div/form/div[2]/div[1]/'
-                                                            'bdi/a'))).get_attribute("href")
-                browser.get(link_to_lot)
-
-                click_button('//*[@id="ui-id-1"]')
-
-                maturity_date = WebDriverWait(browser, 1).until(
-                    EC.presence_of_element_located((By.XPATH,
-                                                    '//*[@id="ui-id-2"]/div[6]/span[2]'))).text
-
-                address = WebDriverWait(browser, 1).until(
-                    EC.presence_of_element_located((By.XPATH,
-                                                    '//*[@id="tygh_main_container"]/div[4]/div/div[2]/div/'
-                                                    'div[1]/div/div[2]/'
-                                                    'div[1]/div[2]/form[1]/div[8]/dl/div[6]/dd'))).text
+                                                            '//*[@id="ui-id-2"]/div[6]/span[2]'))).text
+                    except Exception:
+                        maturity_date = "Не найдено"
+                    address = WebDriverWait(browser, 1).until(
+                        EC.presence_of_element_located((By.XPATH,
+                                                        '//*[@id="tygh_main_container"]/div[4]/div/div[2]/div/'
+                                                        'div[1]/div/div[2]/'
+                                                        'div[1]/div[2]/form[1]/div[8]/dl/div[6]/dd'))).text
             else:
                 print("Не найдена ссылка на catalog.lot-online.ru!")
                 maturity_date, address = "Не найдено", "Не найдено"
