@@ -72,11 +72,11 @@ if __name__ == '__main__':
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
+    user_agent = FakeUserAgent().chrome
+    options.add_argument(f'--user-agent={user_agent}')
+    browser = webdriver.Chrome(service=Service(executable_path="./chromedriver.exe"),
+                               options=options)  # Создание объекта browser
     for url_page in URLS:
-        user_agent = FakeUserAgent().chrome
-        options.add_argument(f'--user-agent={user_agent}')
-        browser = webdriver.Chrome(service=Service(executable_path="./chromedriver.exe"),
-                                   options=options)
         try:
             print(f"Беру в обработку {url_page}...")
             num_page = url_page.split('/')[-1]
@@ -573,9 +573,8 @@ if __name__ == '__main__':
             print("Парсинг успешно завершен!")
         except Exception as e:
             print("Неизвестная ошибка!\n", e)
-        finally:
-            browser.close()
     print("Закрываю процессы...")
+    browser.close()
     os.system("taskkill /f /IM chrome.exe >nul 2>&1")
     os.system("taskkill /f /IM chromedriver.exe >nul 2>&1")
     print("Закончил обработку всех ссылок!")
