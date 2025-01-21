@@ -384,14 +384,17 @@ if __name__ == '__main__':
                                                     f'app-block-feature-group/div/div[2]/div/'
                                                     f'app-block-feature-list/div[{count_elem + 7}]/div[2]/'
                                                     'app-block-feature-value/span'))).text
-                maturity_date = WebDriverWait(browser, 1).until(
-                    EC.presence_of_element_located((By.XPATH,
-                                                    '/html/body/app-root/div/main/app-page-sales-item/'
-                                                    'app-catalog-detail/div/'
-                                                    f'div[{div_tag_number}]/div/'
-                                                    f'div[1]/div/div[3]/app-block-feature-group/div/div[2]/div/'
-                                                    f'app-block-feature-list/div[{count_elem + 8}]/div[2]/'
-                                                    'app-block-feature-value/span'))).text
+                try:
+                    maturity_date = WebDriverWait(browser, 1).until(
+                        EC.presence_of_element_located((By.XPATH,
+                                                        '/html/body/app-root/div/main/app-page-sales-item/'
+                                                        'app-catalog-detail/div/'
+                                                        f'div[{div_tag_number}]/div/'
+                                                        f'div[1]/div/div[3]/app-block-feature-group/div/div[2]/div/'
+                                                        f'app-block-feature-list/div[{count_elem + 8}]/div[2]/'
+                                                        'app-block-feature-value/span'))).text
+                except Exception:
+                    maturity_date = "НЕ НАЙДЕНО"
                 real_estate_list = list()
                 if is_estate == "Да":
                     dict_of_char = dict()
@@ -590,7 +593,7 @@ if __name__ == '__main__':
             writer.close()
             app_log.info("Парсинг успешно завершен!")
         except Exception as e:
-            app_log.critical("Неизвестная ошибка!\n", e)
+            app_log.critical(e)
     app_log.info("Закрываю процессы...")
     browser.close()
     os.system("taskkill /f /IM chrome.exe >nul 2>&1")
