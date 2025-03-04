@@ -245,13 +245,22 @@ if __name__ == '__main__':
                 bidding_number = int(bidding.text)
                 platform_link = bidding.get_attribute("href")
             except Exception:
-                platform = WebDriverWait(browser, 1).until(
-                    EC.presence_of_element_located((By.XPATH,
-                                                    '/html/body/app-root/div/main/app-page-sales-item/'
-                                                    'app-catalog-detail/div/'
-                                                    f'div[{div_tag_number}]/div/div[2]/'
-                                                    f'div[1]/app-block-detail-card/div/div[2]/div[2]/'
-                                                    'app-feature-item[5]/div/div[2]/div/a'))).text
+                try:
+                    platform = WebDriverWait(browser, 1).until(
+                        EC.presence_of_element_located((By.XPATH,
+                                                        '/html/body/app-root/div/main/app-page-sales-item/'
+                                                        'app-catalog-detail/div/'
+                                                        f'div[{div_tag_number}]/div/div[2]/'
+                                                        f'div[1]/app-block-detail-card/div/div[2]/div[2]/'
+                                                        'app-feature-item[4]/div/div[2]/div/a'))).text
+                except Exception:
+                    platform = WebDriverWait(browser, 1).until(
+                        EC.presence_of_element_located((By.XPATH,
+                                                        '/html/body/app-root/div/main/app-page-sales-item/'
+                                                        'app-catalog-detail/div/'
+                                                        f'div[{div_tag_number}]/div/div[2]/'
+                                                        f'div[1]/app-block-detail-card/div/div[2]/div[2]/'
+                                                        'app-feature-item[5]/div/div[2]/div/a'))).text
                 bidding_number = "Не найден"
                 platform_link = ""
             # Торги
