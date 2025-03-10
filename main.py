@@ -93,7 +93,7 @@ if __name__ == '__main__':
     user_agent = FakeUserAgent().chrome
     options.add_argument(f'--user-agent={user_agent}')
     browser = webdriver.Chrome(service=Service(executable_path="./chromedriver.exe"),
-                               options=options)  # Создание объекта browser
+                               options=options)
     for url_page in URLS:
         try:
             app_log.debug(f"Беру в обработку {url_page}...")
@@ -102,7 +102,6 @@ if __name__ == '__main__':
 
             app_log.info("Начинаю парсинг сайта...")
 
-            # set_viewport_size(browser, 1400, 800)
             try:
                 browser.get(url_page)
             except Exception:
@@ -506,8 +505,6 @@ if __name__ == '__main__':
             else:
                 app_log.warning("Не найдена ссылка на catalog.lot-online.ru!")
                 maturity_date, address = "Не найдено", "Не найдено"
-
-            # browser.close()
 
             app_log.info(f"Формирую excel файл {num_page}.xlsx ...")
             writer = pd.ExcelWriter(f'{num_page}.xlsx', engine='xlsxwriter')
