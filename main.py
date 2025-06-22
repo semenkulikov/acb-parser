@@ -39,10 +39,10 @@ app_log.addHandler(stream_handler)
 
 def click_button(xpath: str, timeout=3) -> None:
     """
-    Функция для нажатия на кнопку
-    :param timeout: время ожидания
-    :param xpath: путь к кнопке
-    :return: None
+    Нажимает на кнопку, найденную по XPath.
+
+    :param xpath: XPath путь к кнопке.
+    :param timeout: Максимальное время ожидания элемента в секундах.
     """
     cur_button = WebDriverWait(browser, timeout).until(
         EC.presence_of_element_located((By.XPATH, xpath))
@@ -51,6 +51,15 @@ def click_button(xpath: str, timeout=3) -> None:
 
 
 def set_viewport_size(driver, width, height):
+    """
+    Устанавливает видимый размер окна браузера.
+
+    Это полезно для того, чтобы сайт думал, что используется определенное разрешение экрана.
+
+    :param driver: Экземпляр Selenium WebDriver.
+    :param width: Требуемая ширина видимой области.
+    :param height: Требуемая высота видимой области.
+    """
     window_size = driver.execute_script("""
         return [window.outerWidth - window.innerWidth + arguments[0],
           window.outerHeight - window.innerHeight + arguments[1]];
@@ -59,6 +68,14 @@ def set_viewport_size(driver, width, height):
 
 
 def random_mouse_movements(driver):
+    """
+    Выполняет серию случайных движений мыши по странице.
+
+    Это может помочь обмануть некоторые системы обнаружения ботов,
+    имитируя поведение пользователя.
+
+    :param driver: Экземпляр Selenium WebDriver.
+    """
     app_log.debug("Передвигаю курсор на рандомные точки...")
     for _ in range(30):
         try:
@@ -73,12 +90,14 @@ def random_mouse_movements(driver):
 
 if __name__ == '__main__':
     # url_page = input("Введите ссылку для парсинга: ")
+    # --- Загрузка URL для парсинга ---
     with open("data.txt") as file:
         URLS = list()
         for line in file.readlines():
             URLS.append(line.strip())
     app_log.info("Данные из data.txt успешно загружены!")
 
+    # --- Настройка опций для веб-драйвера Chrome ---
     options = webdriver.ChromeOptions()
     options.add_argument("--disable-infobars")
     options.add_argument("--headless=new")
@@ -94,6 +113,8 @@ if __name__ == '__main__':
     options.add_argument(f'--user-agent={user_agent}')
     browser = webdriver.Chrome(service=Service(executable_path="./chromedriver.exe"),
                                options=options)
+    
+    # --- Основной цикл парсинга по URL ---
     for url_page in URLS:
         try:
             app_log.debug(f"Беру в обработку {url_page}...")
@@ -107,15 +128,18 @@ if __name__ == '__main__':
             except Exception:
                 browser.get(url_page)
 
+            # Попытка закрыть баннер, если он есть
             try:
                 click_button('/html/body/app-root/app-banner-stack/div/div/button')
             except Exception:
-                pass  # Нет кнопки принять куки
+                pass
 
             # Данные из карточки лота на сайте www.torgiasv.ru
+            # --- Парсинг данных из карточки лота на www.torgiasv.ru ---
             app_log.info("Приступаю к парсингу данных на www.torgiasv.ru")
             sleep(3)
             div_tag_number = 2  # В xpath путях номер div элемента меняется временами
+            # Извлечение наименования лота
             try:
                 lot_name = WebDriverWait(browser, 1).until(
                     EC.presence_of_element_located((By.XPATH,
@@ -141,6 +165,7 @@ if __name__ == '__main__':
                                                         f'div/div[{div_tag_number}]/div/div[1]/div/'
                                                         f'app-block-detail-title/div/div[3]'))).text
 
+            # Извлечение номера лота
             try:
                 lot_number = WebDriverWait(browser, 1).until(
                     EC.presence_of_element_located(
@@ -157,6 +182,7 @@ if __name__ == '__main__':
 
             lot_number = int(lot_number)
 
+            # Извлечение и очистка цены
             price = lot_name
             if "\u2009" in price:
                 price = "".join(price.split("\u2009"))
@@ -166,6 +192,7 @@ if __name__ == '__main__':
                 price: str = re.findall(r'(?<![\d.])\d{1,3}(?:\ \d{3})*,\d+', price)[0]
             price: float = float("".join(price.split()).replace(',', '.'))
 
+            # Извлечение типа кредита
             type_of_credit = WebDriverWait(browser, 1).until(
                 EC.presence_of_element_located((By.XPATH,
                                                 '/html/body/app-root/div/main/app-page-sales-item/'
@@ -174,11 +201,13 @@ if __name__ == '__main__':
                                                 'app-block-feature-list/div[1]/div[2]/app-block-feature-value/'
                                                 'span'))).text
 
+            # Извлечение типа имущества
             type_of_property = WebDriverWait(browser, 1).until(
                 EC.presence_of_element_located((By.XPATH,
                                                 '/html/body/app-root/div/main/app-page-sales-item/'
                                                 'app-catalog-detail/div/div[1]/div[1]/a'))).text
 
+            # Извлечение региона
             region = WebDriverWait(browser, 1).until(
                 EC.presence_of_element_located((By.XPATH,
                                                 '/html/body/app-root/div/main/app-page-sales-item/'
@@ -186,6 +215,7 @@ if __name__ == '__main__':
                                                 'app-block-feature-group/div[1]/div[2]/div/'
                                                 'app-block-feature-list/div/div[2]/app-block-feature-value/span'))).text
 
+            # Извлечение агентства
             agency = WebDriverWait(browser, 1).until(
                 EC.presence_of_element_located((By.XPATH,
                                                 '/html/body/app-root/div/main/app-page-sales-item/'
@@ -194,6 +224,7 @@ if __name__ == '__main__':
                                                 'div[1]/'
                                                 'div[2]/app-block-feature-value/a'))).text
 
+            # Извлечение даты публикации
             data_published = WebDriverWait(browser, 1).until(
                 EC.presence_of_element_located((By.XPATH,
                                                 '/html/body/app-root/div/main/app-page-sales-item/app-catalog-detail/'
@@ -202,6 +233,7 @@ if __name__ == '__main__':
                                                 'div/app-block-feature-list/div[2]/div[2]/'
                                                 'app-block-feature-value/span'))).text
 
+            # Извлечение ссылки на публикацию
             public_link = WebDriverWait(browser, 1).until(
                 EC.presence_of_element_located((By.XPATH,
                                                 '/html/body/app-root/div/main/app-page-sales-item/app-catalog-detail/'
@@ -209,6 +241,7 @@ if __name__ == '__main__':
                                                 f'div[1]/div/div[4]/app-block-feature-group/div[2]/div[2]/'
                                                 'div/app-block-feature-list/div[3]/div[2]/'
                                                 'app-block-feature-value/a'))).get_attribute('href')
+            # Извлечение информации об электронной площадке и торгах
             try:
                 try:
                     platform = WebDriverWait(browser, 1).until(
@@ -264,6 +297,7 @@ if __name__ == '__main__':
                 platform_link = ""
             # Торги
 
+            # --- Парсинг информации о торгах ---
             app_log.info("Парсинг торгов...")
 
             bidding_list = list()
@@ -285,6 +319,7 @@ if __name__ == '__main__':
 
             # Договор
 
+            # --- Парсинг информации о договорах ---
             app_log.info("Успешно! Парсинг договоров...")
             treaty_list = list()
 
@@ -456,6 +491,7 @@ if __name__ == '__main__':
                 treaty_list.append([treaty_number, loan_type, treaty_date, interest_rate, repayment_method, is_estate,
                                     date_balance, debt_amount, days_overdue, is_court_rulings, maturity_date,
                                     real_estate_list])
+            # --- Парсинг данных с внешней площадки (если есть ссылка) ---
             if platform_link and platform != "АО «АГЗРТ»":
                 app_log.info(f"Успешно! Начинаю парсить на catalog.lot-online.ru ({platform_link})")
                 # Данные из карточки лота на сайте catalog.lot-online.ru
@@ -506,6 +542,7 @@ if __name__ == '__main__':
                 app_log.warning("Не найдена ссылка на catalog.lot-online.ru!")
                 maturity_date, address = "Не найдено", "Не найдено"
 
+            # --- Формирование и сохранение отчета в Excel ---
             app_log.info(f"Формирую excel файл {num_page}.xlsx ...")
             writer = pd.ExcelWriter(f'{num_page}.xlsx', engine='xlsxwriter')
             workbook = writer.book
@@ -600,6 +637,7 @@ if __name__ == '__main__':
             app_log.info("Парсинг успешно завершен!")
         except Exception as e:
             app_log.critical(e)
+    # --- Завершение работы ---
     app_log.info("Закрываю процессы...")
     browser.close()
     os.system("taskkill /f /IM chrome.exe >nul 2>&1")
