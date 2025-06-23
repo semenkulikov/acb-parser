@@ -11,8 +11,8 @@ import random
 from fake_useragent import FakeUserAgent
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 
 KEYS_LIST = ("Тип", "Площадь", "Количество комнат", "№ этажа", "Количество этажей",
              "Этажность", "Тип дома", "Материал стен", "Категория",
@@ -332,81 +332,108 @@ if __name__ == '__main__':
                     break
                 app_log.debug(f"Договор {i}...")
                 sleep(2)
-                treaty_number = WebDriverWait(browser, 1).until(
-                    EC.presence_of_element_located((By.XPATH,
-                                                    '/html/body/app-root/div/main/app-page-sales-item/app-catalog'
-                                                    '-detail/div/'
-                                                    f'div[{div_tag_number}]/div/div[1]/'
-                                                    f'div/div[3]/app-block-feature-group/div/div[2]/div/'
-                                                    'app-block-feature-list/div[7]/div[2]/app-block-feature-value/'
-                                                    'span'))).text
-                loan_type = WebDriverWait(browser, 1).until(
-                    EC.presence_of_element_located((By.XPATH,
-                                                    '/html/body/app-root/div/main/app-page-sales-item/'
-                                                    'app-catalog-detail/div/'
-                                                    f'div[{div_tag_number}]/div/div[1]/div/'
-                                                    f'div[3]/app-block-feature-group/div/div[2]/div/'
-                                                    'app-block-feature-list/div[1]/div[2]/'
-                                                    'app-block-feature-value/span'))).text
-                treaty_date = WebDriverWait(browser, 1).until(
-                    EC.presence_of_element_located((By.XPATH,
-                                                    '/html/body/app-root/div/main/app-page-sales-item/'
-                                                    'app-catalog-detail/div/'
-                                                    f'div[{div_tag_number}]/div/div[1]/div/div[3]/'
-                                                    f'app-block-feature-group/div/div[2]/div/'
-                                                    'app-block-feature-list/div[2]/div[2]/'
-                                                    'app-block-feature-value/span'))).text
-                interest_rate = WebDriverWait(browser, 1).until(
-                    EC.presence_of_element_located((By.XPATH,
-                                                    '/html/body/app-root/div/main/app-page-sales-item/'
-                                                    'app-catalog-detail/div/'
-                                                    f'div[{div_tag_number}]/div/div[1]/div/div[3]/'
-                                                    f'app-block-feature-group/div/div[2]/div/'
-                                                    'app-block-feature-list/div[3]/div[2]/'
-                                                    'app-block-feature-value/span'))).text
-                interest_rate = float(interest_rate.replace(',', '.'))
-                is_maturity_date = WebDriverWait(browser, 1).until(
-                    EC.presence_of_element_located((By.XPATH,
-                                                    '/html/body/app-root/div/main/app-page-sales-item/'
-                                                    f'app-catalog-detail/div/div[{div_tag_number}]/'
-                                                    f'div/div[1]/div/div[3]/app-block-feature-group/div/div[2]/div/'
-                                                    'app-block-feature-list/div[4]/div[1]/span'))).text
+                try:
+                    treaty_number = WebDriverWait(browser, 1).until(
+                        EC.presence_of_element_located((By.XPATH,
+                                                        '/html/body/app-root/div/main/app-page-sales-item/app-catalog'
+                                                        '-detail/div/'
+                                                        f'div[{div_tag_number}]/div/div[1]/'
+                                                        f'div/div[3]/app-block-feature-group/div/div[2]/div/'
+                                                        'app-block-feature-list/div[7]/div[2]/app-block-feature-value/'
+                                                        'span'))).text
+                except Exception:
+                    treaty_number = "не найден"
+                try:
+                    loan_type = WebDriverWait(browser, 1).until(
+                        EC.presence_of_element_located((By.XPATH,
+                                                        '/html/body/app-root/div/main/app-page-sales-item/'
+                                                        'app-catalog-detail/div/'
+                                                        f'div[{div_tag_number}]/div/div[1]/div/'
+                                                        f'div[3]/app-block-feature-group/div/div[2]/div/'
+                                                        'app-block-feature-list/div[1]/div[2]/'
+                                                        'app-block-feature-value/span'))).text
+                except Exception:
+                    loan_type = "не найден"
+                try:
+                    treaty_date = WebDriverWait(browser, 1).until(
+                        EC.presence_of_element_located((By.XPATH,
+                                                        '/html/body/app-root/div/main/app-page-sales-item/'
+                                                        'app-catalog-detail/div/'
+                                                        f'div[{div_tag_number}]/div/div[1]/div/div[3]/'
+                                                        f'app-block-feature-group/div/div[2]/div/'
+                                                        'app-block-feature-list/div[2]/div[2]/'
+                                                        'app-block-feature-value/span'))).text
+                except Exception:
+                    treaty_date = "не найден"
+                try:
+                    interest_rate = WebDriverWait(browser, 1).until(
+                        EC.presence_of_element_located((By.XPATH,
+                                                        '/html/body/app-root/div/main/app-page-sales-item/'
+                                                        'app-catalog-detail/div/'
+                                                        f'div[{div_tag_number}]/div/div[1]/div/div[3]/'
+                                                        f'app-block-feature-group/div/div[2]/div/'
+                                                        'app-block-feature-list/div[3]/div[2]/'
+                                                        'app-block-feature-value/span'))).text
+                    interest_rate = float(interest_rate.replace(',', '.'))
+                except Exception:
+                    interest_rate = float('nan')
+                try:
+                    is_maturity_date = WebDriverWait(browser, 1).until(
+                        EC.presence_of_element_located((By.XPATH,
+                                                        '/html/body/app-root/div/main/app-page-sales-item/'
+                                                        f'app-catalog-detail/div/div[{div_tag_number}]/'
+                                                        f'div/div[1]/div/div[3]/app-block-feature-group/div/div[2]/div/'
+                                                        'app-block-feature-list/div[4]/div[1]/span'))).text
+                except Exception:
+                    is_maturity_date = "не найден"
                 count_elem = 4
                 if is_maturity_date == "Дата погашения":
                     count_elem += 1
-                repayment_method = WebDriverWait(browser, 1).until(
-                    EC.presence_of_element_located((By.XPATH,
-                                                    '/html/body/app-root/div/main/app-page-sales-item/'
-                                                    'app-catalog-detail/div/'
-                                                    f'div[{div_tag_number}]/div/div[1]/div/'
-                                                    f'div[3]/app-block-feature-group/div/div[2]/div/'
-                                                    f'app-block-feature-list/div[{count_elem}]/div[2]/'
-                                                    'app-block-feature-value/span'))).text
-                is_estate = WebDriverWait(browser, 1).until(
-                    EC.presence_of_element_located((By.XPATH,
-                                                    '/html/body/app-root/div/main/app-page-sales-item/'
-                                                    'app-catalog-detail/div/'
-                                                    f'div[{div_tag_number}]/div/div[1]/'
-                                                    f'div/div[3]/app-block-feature-group/div/div[2]/div/'
-                                                    f'app-block-feature-list/div[{count_elem + 1}]/div[2]/'
-                                                    'app-block-feature-value/span'))).text
-                date_balance = WebDriverWait(browser, 1).until(
-                    EC.presence_of_element_located((By.XPATH,
-                                                    '/html/body/app-root/div/main/app-page-sales-item/'
-                                                    'app-catalog-detail/div/'
-                                                    f'div[{div_tag_number}]/div/div[1]/'
-                                                    f'div/div[3]/app-block-feature-group/div/div[2]/div/'
-                                                    f'app-block-feature-list/div[{count_elem + 4}]/div[2]/'
-                                                    'app-block-feature-value/span'))).text
-                debt_amount = WebDriverWait(browser, 1).until(
-                    EC.presence_of_element_located((By.XPATH,
-                                                    '/html/body/app-root/div/main/app-page-sales-item/'
-                                                    'app-catalog-detail/div/'
-                                                    f'div[{div_tag_number}]/div/div[1]/div/div[3]/'
-                                                    'app-block-feature-group/div/div[2]/div/'
-                                                    f'app-block-feature-list/div[{count_elem + 5}]/div[2]/'
-                                                    'app-block-feature-value/span'))).text
-                debt_amount = float(debt_amount.replace(',', '.'))
+                try:
+                    repayment_method = WebDriverWait(browser, 1).until(
+                        EC.presence_of_element_located((By.XPATH,
+                                                        '/html/body/app-root/div/main/app-page-sales-item/'
+                                                        'app-catalog-detail/div/'
+                                                        f'div[{div_tag_number}]/div/div[1]/div/'
+                                                        f'div[3]/app-block-feature-group/div/div[2]/div/'
+                                                        f'app-block-feature-list/div[{count_elem}]/div[2]/'
+                                                        'app-block-feature-value/span'))).text
+                except Exception:
+                    repayment_method = "не найден"
+                try:
+                    is_estate = WebDriverWait(browser, 1).until(
+                        EC.presence_of_element_located((By.XPATH,
+                                                        '/html/body/app-root/div/main/app-page-sales-item/'
+                                                        'app-catalog-detail/div/'
+                                                        f'div[{div_tag_number}]/div/div[1]/'
+                                                        f'div/div[3]/app-block-feature-group/div/div[2]/div/'
+                                                        f'app-block-feature-list/div[{count_elem + 1}]/div[2]/'
+                                                        'app-block-feature-value/span'))).text
+                except Exception:
+                    is_estate = "не найден"
+                try:
+                    date_balance = WebDriverWait(browser, 1).until(
+                        EC.presence_of_element_located((By.XPATH,
+                                                        '/html/body/app-root/div/main/app-page-sales-item/'
+                                                        'app-catalog-detail/div/'
+                                                        f'div[{div_tag_number}]/div/div[1]/'
+                                                        f'div/div[3]/app-block-feature-group/div/div[2]/div/'
+                                                        f'app-block-feature-list/div[{count_elem + 4}]/div[2]/'
+                                                        'app-block-feature-value/span'))).text
+                except Exception:
+                    date_balance = "не найден"
+                try:
+                    debt_amount = WebDriverWait(browser, 1).until(
+                        EC.presence_of_element_located((By.XPATH,
+                                                        '/html/body/app-root/div/main/app-page-sales-item/'
+                                                        'app-catalog-detail/div/'
+                                                        f'div[{div_tag_number}]/div/div[1]/div/div[3]/'
+                                                        'app-block-feature-group/div/div[2]/div/'
+                                                        f'app-block-feature-list/div[{count_elem + 5}]/div[2]/'
+                                                        'app-block-feature-value/span'))).text
+                    debt_amount = float(debt_amount.replace(',', '.'))
+                except Exception:
+                    debt_amount = float('nan')
                 try:
                     days_overdue = int(WebDriverWait(browser, 1).until(
                         EC.presence_of_element_located((By.XPATH,
@@ -417,16 +444,19 @@ if __name__ == '__main__':
                                                         f'app-block-feature-list/div[{count_elem + 6}]/div[2]/'
                                                         'app-block-feature-value/span'))).text)
                 except Exception:
-                    days_overdue = "НЕ НАЙДЕНО"
+                    days_overdue = "не найден"
                     count_elem -= 1
-                is_court_rulings = WebDriverWait(browser, 1).until(
-                    EC.presence_of_element_located((By.XPATH,
-                                                    '/html/body/app-root/div/main/app-page-sales-item/'
-                                                    'app-catalog-detail/div/'
-                                                    f'div[{div_tag_number}]/div/div[1]/div/div[3]/'
-                                                    f'app-block-feature-group/div/div[2]/div/'
-                                                    f'app-block-feature-list/div[{count_elem + 7}]/div[2]/'
-                                                    'app-block-feature-value/span'))).text
+                try:
+                    is_court_rulings = WebDriverWait(browser, 1).until(
+                        EC.presence_of_element_located((By.XPATH,
+                                                        '/html/body/app-root/div/main/app-page-sales-item/'
+                                                        'app-catalog-detail/div/'
+                                                        f'div[{div_tag_number}]/div/div[1]/div/div[3]/'
+                                                        f'app-block-feature-group/div/div[2]/div/'
+                                                        f'app-block-feature-list/div[{count_elem + 7}]/div[2]/'
+                                                        'app-block-feature-value/span'))).text
+                except Exception:
+                    is_court_rulings = "не найден"
                 try:
                     maturity_date = WebDriverWait(browser, 1).until(
                         EC.presence_of_element_located((By.XPATH,

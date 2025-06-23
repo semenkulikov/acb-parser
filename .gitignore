@@ -10,6 +10,7 @@ data.txt
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+chromedriver
 
 # AWS User-specific
 .idea/**/aws.xml
